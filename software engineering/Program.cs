@@ -1,3 +1,9 @@
+using software_engineering.Lib;
+using System.Diagnostics;
+
+var metrics = new Metrics("");
+metrics.Print();
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
