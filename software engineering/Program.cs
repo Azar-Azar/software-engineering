@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using software_engineering.Data;
 using software_engineering.Lib;
 
-var metrics = new Metrics("");
+var metrics = new Metrics(@"C:\Users\wc296\AppData\Local\Development\SampleData\GTLB-Data\1c0fd777_20251011.csv");
 metrics.Print();
 
 var builder = WebApplication.CreateBuilder(args);

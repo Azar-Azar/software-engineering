@@ -1,10 +1,11 @@
 ﻿using Microsoft.VisualBasic.FileIO;
+using System.Diagnostics;
 
 namespace software_engineering.Lib
 {
     public class Metrics
     {
-        protected byte[][] data = [];
+        protected List<List<short>> data = new List<List<short>>();
 
         public Metrics(string dataFilePath)
         {
@@ -18,15 +19,18 @@ namespace software_engineering.Lib
                 string[]? fields = parser.ReadFields();
                 if (fields == null) continue;
 
-                data.Append([.. fields.Select(byte.Parse)]);
+
+                data.Add(fields.Select(short.Parse).ToList());
             }
         }
 
         public void Print()
         {
-            foreach (byte[] row in data)
+            Debug.WriteLine(data.Count());
+
+            foreach (List<short> row in data)
             {
-                Console.WriteLine(row);
+                
             }
         }
     }
