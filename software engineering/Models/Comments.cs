@@ -1,6 +1,6 @@
 ﻿namespace software_engineering.Models
 {
-    public class comments
+    public class Comments
     {
     }
 }
