@@ -8,7 +8,7 @@ namespace software_engineering.Data
             : base(options)
         { }
         // connects the C# model Book to a table in the DB
-        public DbSet<Models.Users> user { get; set; }
+        public DbSet<Models.Users> User { get; set; }
         
 
 
