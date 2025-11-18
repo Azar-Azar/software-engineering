@@ -6,13 +6,13 @@ namespace software_engineering.Lib
 {
     public class Metrics
     {
-        public List<PressureMatrix> matrices = new List<PressureMatrix>();
+        public List<PressureMatrix> matrices = [];
 
         // Assumes file name convention as provided by Sample data:
         // <User ID>_<Timestamp yyyyMMdd>.csv
         public Metrics(string dataFilePath, int matrixHeight = 32)
         {
-            List<List<short>> rows = new List<List<short>>();
+            List<List<short>> rows = [];
 
             TextFieldParser parser = new TextFieldParser(dataFilePath);
 
