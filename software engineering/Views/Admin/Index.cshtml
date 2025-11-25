@@ -11,5 +11,12 @@
         <li>@user.Fullname by @user.Email - £@user.Role</li>
         <a asp-action="Delete" asp-route-id="@user.ID">Delete</a>
         <a asp-action="Edit" asp-route-id="@user.ID">Edit</a>
+        <a asp-action="ResetPassword" asp-route-id="@user.ID">Reset Password</a>
     }
 </ul>
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-warning">
+        @TempData["ErrorMessage"]
+    </div>
+}

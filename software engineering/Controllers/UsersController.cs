@@ -27,7 +27,7 @@ namespace software_engineering.Controllers
         }
 
         //adding a user
-        //the show form
+        
         [HttpGet]
         public IActionResult AddUser()
         {
@@ -48,7 +48,8 @@ namespace software_engineering.Controllers
             //check if the user id is not null 
             if (id == null)
             {
-                return NotFound();
+                TempData["ErrorMessage"] = "This user has been deleted already.";
+                return RedirectToAction(nameof(Index));
             }
 
             //find a user that has the ID "id"
@@ -57,7 +58,8 @@ namespace software_engineering.Controllers
             //check if a user has beeen found
             if (user == null)
             {
-                return NotFound();
+                TempData["ErrorMessage"] = "This user has been deleted already.";
+                return RedirectToAction(nameof(Index));
             }
 
             return View(user); // show a conformation page
@@ -87,7 +89,7 @@ namespace software_engineering.Controllers
         {
             if (id == null)
             {
-                TempData["ErrorMessage"] = " In the meantime, this user has been deleted.";
+                TempData["ErrorMessage"] = "This user has been deleted.";
                 return RedirectToAction(nameof(Index));
 
             }
@@ -95,7 +97,8 @@ namespace software_engineering.Controllers
             var user = await appDBcontext.User.FindAsync(id);
             if (user == null)
             {
-                return NotFound();
+                TempData["ErrorMessage"] = "This user has been deleted.";
+                return RedirectToAction(nameof(Index));
 
             }
 
@@ -125,16 +128,81 @@ namespace software_engineering.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    // what does happen if the book doesn’t exist??
-                    throw;
+                    if (!UserExists(user.ID))
+                    {
+                        TempData["ErrorMessage"] = "This user has been deleted.";
+                        return RedirectToAction(nameof(Index));
+
+                    }
+                    else
+                    {
+                    
+                        throw;
+                    }
                 }
             }
 
             return View(user);
         }
+        private bool UserExists(int id)//checks if user exists
+        {
+            return appDBcontext.User.Any(bI => bI.ID == id);
+        }
 
 
+        //Reset Password
+        public async Task<IActionResult> ResetPassword(int? id)
+        {
+            //check if the user id is not null 
+            if (id == null)
+            {
+                TempData["ErrorMessage"] = "This user has been deleted.";
+                return RedirectToAction(nameof(Index));
+            }
 
+            //find a user that has the ID "id"
+            var user = await appDBcontext.User.FirstOrDefaultAsync(userIterator => userIterator.ID == id);
 
+            //check if a user has beeen found
+            if (user == null)
+            {
+                TempData["ErrorMessage"] = "This user has been deleted.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            return View(user); // show a conformation page
+        }
+
+        [HttpPost, ActionName("ResetPassword")]
+
+        public async Task<IActionResult> ResetConfirmed(int id)
+        {
+            //find a user that has the ID "id"
+            var user = await appDBcontext.User.FindAsync(id);
+
+            if (user != null)
+            {
+                //Changes the password to Password123
+                user.Password = "Password123";
+                //Apply the changes made in the DbContext to the database
+                await appDBcontext.SaveChangesAsync();
+            }
+
+            return RedirectToAction(nameof(Index)); // back to list
+        }
+
+        //login
+        public async Task<IActionResult> Login(string email, string password)
+        {
+            if (email == null)
+            {
+                TempData["ErrorMessage"] = "This user has been deleted already.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            //find a user that has the ID "id"
+            var user = await appDBcontext.User.FirstOrDefaultAsync(userIterator => userIterator.Email == email);
+
+        }
     }
 }
