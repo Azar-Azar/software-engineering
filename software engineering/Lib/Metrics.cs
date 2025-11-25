@@ -28,7 +28,9 @@ namespace software_engineering.Lib
 
                 if (rows.Count == matrixHeight)
                 {
-                    matrices.Add(new PressureMatrix(rows, DateTime.Now));
+                    List<List<short>> rowsCopy = rows.Select(row => row.ToList()).ToList();
+
+                    matrices.Add(new PressureMatrix(rowsCopy, DateTime.Now));
                     rows.Clear();
                 }
             }

@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System.Diagnostics;
+using System.Numerics;
 
 namespace software_engineering.Lib
 {
@@ -20,9 +21,13 @@ namespace software_engineering.Lib
 
             List<Vector2> vectors = [
                 origin + new Vector2(1, 0),
-                origin - new Vector2(1, 0),
+                origin + new Vector2(1, 1),
                 origin + new Vector2(0, 1),
-                origin - new Vector2(0, 1)
+                origin + new Vector2(-1, 1),
+                origin + new Vector2(-1, 0),
+                origin + new Vector2(-1, -1),
+                origin + new Vector2(0, -1),
+                origin + new Vector2(1, -1)
             ];
 
             List<PressurePoint> points = [];
@@ -31,6 +36,9 @@ namespace software_engineering.Lib
             {
                 int x = Convert.ToInt32(vec.X);
                 int y = Convert.ToInt32(vec.Y);
+
+                if (y < 0 || y >= Data.Count) continue;
+                if (x < 0 || x >= Data[y].Count) continue;
 
                 try
                 {
@@ -45,9 +53,11 @@ namespace software_engineering.Lib
             return points;
         }
 
-        public List<List<PressurePoint>> GetHighPressureRegions(int tolerance = 20)
-        {
-            float threshold = 256 * (1 - tolerance / 100);
+        public List<List<PressurePoint>> GetHighPressureRegions(
+            int threshold = 200,
+            int tolerance = 40
+        ) {
+            int lowerBound = threshold - tolerance;
 
             List<List<PressurePoint>> zones = [];
 
@@ -72,7 +82,7 @@ namespace software_engineering.Lib
                     while (frontier.Count > 0)
                     {
                         PressurePoint node = frontier.Pop();
-                        if (node.pressure < threshold) continue;
+                        if (node.pressure < lowerBound) continue;
 
                         zone.Add(node);
 
@@ -81,7 +91,9 @@ namespace software_engineering.Lib
                         foreach (PressurePoint adjPoint in adjacentPoints)
                         {
                             if (discovered.Contains(adjPoint.Serialise())) continue;
+
                             frontier.Push(adjPoint);
+                            discovered.Add(adjPoint.Serialise());
                         }
                     }
 
@@ -100,6 +112,21 @@ namespace software_engineering.Lib
         public int GetContactAreaPercentage()
         {
             throw new NotImplementedException();
+        }
+
+        public void Print()
+        {
+            foreach (List<short> row in Data)
+            {
+                string rowString = "";
+
+                foreach (short point in row)
+                {
+                    rowString += point.ToString() + ", ";
+                }
+
+                Debug.WriteLine(rowString);
+            }
         }
     }
 }
