@@ -18,23 +18,26 @@ namespace software_engineering.Controllers
             //a session of the database
         }
         //viewing all the users
+        [AdminOnly]
         public async Task<IActionResult> Index()
         {
             //get the list from the DB asynchronously 
             var user = await appDBcontext.User.ToListAsync();
-            
+
             return View(user);
         }
 
         //adding a user
-        
+
         [HttpGet]
+        [AdminOnly]
         public IActionResult AddUser()
         {
             return View();
         }
         //add a user to the database
         [HttpPost]
+        [AdminOnly]
         public async Task<IActionResult> AddUser(Users user)
         {
             appDBcontext.Add(user);
@@ -43,6 +46,7 @@ namespace software_engineering.Controllers
         }
 
         //Delete a user
+        [AdminOnly]
         public async Task<IActionResult> Delete(int? id)
         {
             //check if the user id is not null 
@@ -66,7 +70,7 @@ namespace software_engineering.Controllers
         }
 
         [HttpPost, ActionName("Delete")]
-        
+        [AdminOnly]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             //find a user that has the ID "id"
@@ -84,7 +88,7 @@ namespace software_engineering.Controllers
         }
 
         //Edit Users
-        
+        [AdminOnly]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -108,8 +112,7 @@ namespace software_engineering.Controllers
 
         // POST: Books/Edit/XX
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        [Authorize]
+        [AdminOnly]
         public async Task<IActionResult> Edit(int id, Users user)
         {
             if (id != user.ID)
@@ -136,7 +139,7 @@ namespace software_engineering.Controllers
                     }
                     else
                     {
-                    
+
                         throw;
                     }
                 }
@@ -151,6 +154,7 @@ namespace software_engineering.Controllers
 
 
         //Reset Password
+        [AdminOnly]
         public async Task<IActionResult> ResetPassword(int? id)
         {
             //check if the user id is not null 
@@ -174,6 +178,7 @@ namespace software_engineering.Controllers
         }
 
         [HttpPost, ActionName("ResetPassword")]
+        [AdminOnly]
 
         public async Task<IActionResult> ResetConfirmed(int id)
         {
@@ -192,17 +197,49 @@ namespace software_engineering.Controllers
         }
 
         //login
+
+        public IActionResult Login()
+        {
+            return View();
+        }
+
+        // POST: 
+        [HttpPost]
+
         public async Task<IActionResult> Login(string email, string password)
         {
             if (email == null)
             {
-                TempData["ErrorMessage"] = "This user has been deleted already.";
-                return RedirectToAction(nameof(Index));
+                TempData["ErrorMessage"] = "Incorrect Email or Password.";
+                return NotFound();
+
             }
 
-            //find a user that has the ID "id"
-            var user = await appDBcontext.User.FirstOrDefaultAsync(userIterator => userIterator.Email == email);
 
+            //find a user that has both the email and password
+            var loginUser = await appDBcontext.User.FirstOrDefaultAsync(userIterator => userIterator.Email == email && userIterator.Password == password);
+            if (loginUser == null)
+            {
+                ModelState.AddModelError("", "Invalid email or password");
+                return NotFound();
+
+            }
+            // Store user info in session
+            HttpContext.Session.SetInt32("UserID", loginUser.ID);
+            HttpContext.Session.SetString("UserRole", loginUser.Role.ToString());
+
+            switch (loginUser.Role)//redirect based on role to their respective homepages
+            {
+                case Roles.Admin:
+                    return RedirectToAction(nameof(Index));
+                case Roles.user:
+                    return RedirectToAction("Index", "");
+                case Roles.clincian:
+                    return RedirectToAction("Index", "");
+                default:
+                    ModelState.AddModelError("", "Invalid user role");
+                    return View();
+            }
         }
     }
 }
