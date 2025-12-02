@@ -5,25 +5,28 @@
 }
 @model IEnumerable<Users>
 <h2>Users List</h2>
+<a asp-action="AddUser">Add new user</a>
 <table>
     <tr>
-        <th>Id</th>
-        <th>Name</th>
-        <th>Email</th>
-        <th>Role</th>
+        <th class="p-3">Id</th>
+        <th class="p-3">Name</th>
+        <th class="p-3">Email</th>
+        <th class="p-3">Role</th>
     </tr>
-<tr>
+
     @foreach (var user in Model)
     {
-        <td>@user.ID </td>
-        <td> @user.Fullname </td>
-        <td>@user.Email </td> 
-        <td>@user.Role </td>
-            <td><a asp-action="Delete" asp-route-id="@user.ID">Delete </a></td>
-            <td><a asp-action="Edit" asp-route-id="@user.ID">Edit </a></td>
-            <td><a asp-action="ResetPassword" asp-route-id="@user.ID">Reset Password</a></td>
+        <tr>
+            <td class="p-3"> @user.ID </td>
+            <td class="p-3"> @user.Fullname </td>
+        <td class="p-3"> @user.Email </td> 
+        <td class="p-3">@user.Role </td>
+            <td class="p-3"><a asp-action="Delete" asp-route-id="@user.ID">Delete </a></td>
+            <td class="p-3"><a asp-action="EditUser" asp-route-id="@user.ID">Edit </a></td>
+            <td class="p-3"><a asp-action="ResetPassword" asp-route-id="@user.ID">Reset Password</a></td>
+        </tr>
     }
-</tr>
+
 </table>
 @if (TempData["ErrorMessage"] != null)
 {

@@ -19,7 +19,8 @@ namespace software_engineering.Controllers
             //a session of the database
         }
         //viewing all the users
-       // [AdminOnly]
+       [AdminOnly]
+       //User/Index
         public async Task<IActionResult> Index()
         {
             //get the list from the DB asynchronously 
@@ -31,14 +32,14 @@ namespace software_engineering.Controllers
         //adding a user
 
         [HttpGet]
-        //[AdminOnly]
+        [AdminOnly]
         public IActionResult AddUser()
         {
             return View();
         }
         //add a user to the database
-        [HttpPost]
-        //[AdminOnly]
+        [HttpPost]//Users/AddUser
+        [AdminOnly]
         public async Task<IActionResult> AddUser(Users user)
         {
             appDBcontext.Add(user);
@@ -70,8 +71,8 @@ namespace software_engineering.Controllers
             return View(user); // show a conformation page
         }
 
-        [HttpPost, ActionName("Delete")]
-        [AdminOnly]
+        [HttpPost, ActionName("Delete")] //User/Delete
+        [AdminOnly] 
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             //find a user that has the ID "id"
@@ -90,7 +91,7 @@ namespace software_engineering.Controllers
 
         //Edit Users
         [AdminOnly]
-        public async Task<IActionResult> Edit(int? id)
+        public async Task<IActionResult> EditUser(int? id)
         {
             if (id == null)
             {
@@ -111,13 +112,14 @@ namespace software_engineering.Controllers
         }
 
 
-        // POST: Books/Edit/XX
+        // POST: Users/EditUser/XX
         [HttpPost]
-        [AdminOnly]
-        public async Task<IActionResult> Edit(int id, Users user)
+       [AdminOnly]
+        public async Task<IActionResult> EditUser(int id, Users user)
         {
             if (id != user.ID)
-                return NotFound();
+                TempData["ErrorMessage"] = "This user has been deleted.";
+            return NotFound();
 
             if (ModelState.IsValid)
             {
@@ -215,13 +217,19 @@ namespace software_engineering.Controllers
                 return NotFound();
 
             }
+            if (password == null)
+            {
+                TempData["ErrorMessage"] = "Incorrect Email or Password.";
+                return NotFound();
+
+            }
 
 
             //find a user that has both the email and password
             var loginUser = await appDBcontext.User.FirstOrDefaultAsync(userIterator => userIterator.Email == email && userIterator.Password == password);
             if (loginUser == null)
             {
-                ModelState.AddModelError("", "Invalid email or password");
+                TempData["ErrorMessage"] = "Incorrect Email or Password.";
                 return NotFound();
 
             }
