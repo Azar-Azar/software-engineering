@@ -1,4 +1,7 @@
-﻿namespace software_engineering.Models
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace software_engineering.Models
 {
     public enum Roles { Admin, clincian, user }
     public class Users
@@ -14,6 +17,7 @@
 
         [Required(ErrorMessage = "Please enter a email")]
         [StringLength(150)]
+        [EmailAddress]
         public string Email { get; set; }
 
         [Required]

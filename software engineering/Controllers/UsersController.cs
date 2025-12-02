@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using software_engineering.Data;
+using software_engineering.Filters;
 using software_engineering.Models;
 using System;
 
@@ -18,7 +19,7 @@ namespace software_engineering.Controllers
             //a session of the database
         }
         //viewing all the users
-        [AdminOnly]
+       // [AdminOnly]
         public async Task<IActionResult> Index()
         {
             //get the list from the DB asynchronously 
@@ -30,14 +31,14 @@ namespace software_engineering.Controllers
         //adding a user
 
         [HttpGet]
-        [AdminOnly]
+        //[AdminOnly]
         public IActionResult AddUser()
         {
             return View();
         }
         //add a user to the database
         [HttpPost]
-        [AdminOnly]
+        //[AdminOnly]
         public async Task<IActionResult> AddUser(Users user)
         {
             appDBcontext.Add(user);

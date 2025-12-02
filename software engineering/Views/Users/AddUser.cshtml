@@ -32,3 +32,9 @@
 
     <input type="submit" value="Create" class="btn btn-primary" />
 <</form>
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-warning">
+        @TempData["ErrorMessage"]
+    </div>
+}
