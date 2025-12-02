@@ -4,139 +4,95 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Login Page</title>
+  <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
   <style>
     body {
+      display :flex;
+      justify-content: center;
+      align-items: center;
       margin: 0;
       font-family: Arial, sans-serif;
       background: #ffffff;
-      color: #2d3e2d;
+      color:#1E4815;
     }
 
     .container {
+      width: 420px;
       display: flex;
+      flex-direction: column;
       height: 100vh;
+      padding-top: 180px;
     }
 
-    .left-section {
-      flex: 1.2;
-      padding: 40px 80px;
+    .container h1{
+      text-align: center;
+      font-size: 36px;
+      color:1E4815
     }
 
-    .logo {
-      width: 80px;
-      height: 80px;
-      border-radius: 50%;
-      background: #a2e19a;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 18px;
-      font-weight: bold;
-      color: #2d3e2d;
-      margin-bottom: 60px;
-    }
-
-    h1 {
-      font-size: 32px;
-      margin-bottom: 10px;
-      font-weight: 700;
-    }
-
-    p.subtitle {
+    .subtitle{
+      text-align: left;
       font-size: 14px;
-      margin-bottom: 30px;
+      margin-bottom: 40px;
+      color:black;
+      font-weight: 550;
     }
-
-    label {
-      font-size: 14px;
-      display: block;
-      margin-bottom: 6px;
-      font-weight: bold;
-    }
-
-    .input-group {
+    
+    .container .input-box{
       position: relative;
-      margin-bottom: 22px;
+      width: 100%;
+      height: 50px;
+      margin: 30px 0;
     }
-
-    .input-group input {
-      width: 50%;
-      padding: 12px 40px 12px 40px;
-      border-radius: 8px;
-      border: 1px solid #b5b5b5;
-      font-size: 14px;
-    }
-
-    .input-group .icon {
-      position: absolute;
-      top: 40%;
-      left: 12px;
-      transform: translateY(-50%);
+    .input-box input{
+      width: 80%;
+      height: 100%;
+      padding: 0 40px 0 15px;
       font-size: 16px;
-      color: #4c8f4c;
+      border: 2px solid #ded8d8;
+      border-radius: 25px;
+      outline: none;
     }
 
-    .input-group .toggle {
-      position: absolute;
-      top: 60%;
-      right: 12px;
+    .input-box i{
+      position : absolute;
+      right: 50px;
+      top: 50%;
       transform: translateY(-50%);
-      cursor: pointer;
-      font-size: 16px;
-      color: #4c8f4c;
+      font-size: 20px;
     }
 
-    .forgot:hover {
-      text-decoration: underline;
-    }
-
-    .btn {
-      width: 397px;
-      padding: 12px;
-      background: #365f2b;
+    .container .btn{
+      width: 95%;
+      height: 50px;
       border: none;
-      border-radius: 8px;
+      background: #1E4815;
+      outline: none;
       color: #fff;
-      font-size: 16px;
+      font-size: 18px;
+      border-radius: 25px;
       cursor: pointer;
+      font-weight: bold;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
 
-    .btn:hover {
-      background: #2e5225;
-    }
-
-    .right-section {
-      flex: 0.4;
-      background: #cbbebe;
-    }
   </style>
 </head>
 <body>
   <div class="container">
-    <div class="left-section">
-      <div class="logo">App<br>Logo</div>
-      
-      <h1>Welcome Back !</h1>
+    <form action=" "> 
+     <h1>Welcome Back !</h1>
       <p class="subtitle">Sign in to access your account</p>
-
-      <label for="email">Email</label>
-      <div class="input-group">
-        <span class="icon">✉️</span>
-        <input type="email" id="email" placeholder="Enter your email" />
+      <div class="input-box">
+        <input type="text" placeholder="Enter your email" required />
+        <i class='bx bx-envelope'></i>
+      </div>  
+      <div class="input-box">
+        <input type="password" placeholder="Enter your password" required />
+        <i class='bx bxs-lock-alt' ></i>
       </div>
-
-      <label for="password">Password</label>
-      <div class="input-group">
-        <span class="icon">🔒</span>
-        <input type="password" id="password" placeholder="Enter your password" />
-        
-      </div>
-
-      
-      <button class="btn">Sign in</button>
-    </div>
-
-    <div class="right-section"></div>
+      <button type="submit" class="btn">Sign In</button>
+    </form>  
   </div>
 </body>
 </html>
