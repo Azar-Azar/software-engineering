@@ -3,27 +3,27 @@ using software_engineering.Data;
 using software_engineering.Lib;
 using System.Diagnostics;
 
-var metrics = new Metrics(@"C:\Users\wc296\AppData\Local\Development\SampleData\GTLB-Data\1c0fd777_20251011.csv");
+//var metrics = new Metrics(@"C:\Users\wc296\AppData\Local\Development\SampleData\GTLB-Data\1c0fd777_20251011.csv");
 
-Debug.WriteLine("first matrix:");
-metrics.matrices.ElementAt(0).Print();
+//Debug.WriteLine("first matrix:");
+//metrics.matrices.ElementAt(0).Print();
 
-foreach (List<PressurePoint> area in metrics.matrices.ElementAt(0).GetHighPressureRegions(30, 20))
-{
-    string areaString = "";
+//foreach (List<PressurePoint> area in metrics.matrices.ElementAt(0).GetHighPressureRegions(30, 20))
+//{
+//    string areaString = "";
 
-    foreach (PressurePoint point in area)
-    {
-        areaString += "(" + point.x.ToString() + ", " + point.y.ToString() + "), ";
-    }
+//    foreach (PressurePoint point in area)
+//    {
+//        areaString += "(" + point.x.ToString() + ", " + point.y.ToString() + "), ";
+//    }
 
-    Debug.WriteLine(areaString);
-}
+//    Debug.WriteLine(areaString);
+//}
 
-Debug.WriteLine("Peak pressure index:");
-Debug.WriteLine(metrics.matrices.ElementAt(0).GetPeakPressureIndex());
-Debug.WriteLine("Contact Area Percentage:");
-Debug.WriteLine(metrics.matrices.ElementAt(0).GetContactAreaPercentage().ToString() + "%");
+//Debug.WriteLine("Peak pressure index:");
+//Debug.WriteLine(metrics.matrices.ElementAt(0).GetPeakPressureIndex());
+//Debug.WriteLine("Contact Area Percentage:");
+//Debug.WriteLine(metrics.matrices.ElementAt(0).GetContactAreaPercentage().ToString() + "%");
 
 var builder = WebApplication.CreateBuilder(args);
 
