@@ -115,40 +115,32 @@ namespace software_engineering.Controllers
         // POST: Users/EditUser/XX
         [HttpPost]
        [AdminOnly]
-        public async Task<IActionResult> EditUser(int id, Users user)
+        public async Task<IActionResult> EditUser(int id, Users EditUser)
         {
-            if (id != user.ID)
-                TempData["ErrorMessage"] = "This user has been deleted.";
-            return NotFound();
-
             if (ModelState.IsValid)
             {
+                if (id != EditUser.ID)
+                    return NotFound();
+
                 try
                 {
-                    //make the changes in the DBContext 
-                    appDBcontext.Update(user);
-
-                    //apply the changes made in the DbContext to the database
+                    appDBcontext.Update(EditUser);
                     await appDBcontext.SaveChangesAsync();
                     return RedirectToAction(nameof(Index));
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!UserExists(user.ID))
+                    if (!UserExists(id))
                     {
                         TempData["ErrorMessage"] = "This user has been deleted.";
                         return RedirectToAction(nameof(Index));
-
                     }
-                    else
-                    {
 
-                        throw;
-                    }
+                    throw;
                 }
+                
             }
-
-            return View(user);
+            return View(EditUser);
         }
         private bool UserExists(int id)//checks if user exists
         {
@@ -213,14 +205,14 @@ namespace software_engineering.Controllers
         {
             if (email == null)
             {
-                TempData["ErrorMessage"] = "Incorrect Email or Password.";
-                return NotFound();
+                TempData["ErrorMessage"] = "Requires an Email ";
+                return View();
 
             }
             if (password == null)
             {
-                TempData["ErrorMessage"] = "Incorrect Email or Password.";
-                return NotFound();
+                TempData["ErrorMessage"] = "Requires a Password.";
+                return View();
 
             }
 
@@ -230,7 +222,7 @@ namespace software_engineering.Controllers
             if (loginUser == null)
             {
                 TempData["ErrorMessage"] = "Incorrect Email or Password.";
-                return NotFound();
+                return View();
 
             }
             // Store user info in session

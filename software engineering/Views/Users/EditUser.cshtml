@@ -20,7 +20,7 @@
     <div class="form-group">
         <label>Role</label>
         <select asp-for="Role" class="form-control" asp-items="Html.GetEnumSelectList<Roles>()">
-            <option value="">-- Select Role --</option>
+            <option disabled selected>-- Select Role --</option>
         </select>
         <span asp-validation-for="Role" class="text-danger"></span>
     </div>
