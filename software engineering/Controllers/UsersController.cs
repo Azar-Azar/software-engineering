@@ -108,44 +108,50 @@ namespace software_engineering.Controllers
 
             }
 
-            return View(user); // returns the edit form
+            
+
+            return View(user);
         }
 
 
+
         // POST: Users/EditUser/XX
+
+
+
         [HttpPost]
-       [AdminOnly]
-        public async Task<IActionResult> EditUser(int id, Users EditUser)
+        [ValidateAntiForgeryToken]
+        [AdminOnly]
+
+        public async Task<IActionResult> EditUser(int id, Users user)
         {
+            if(id != user.ID){ return NotFound(); }
             if (ModelState.IsValid)
             {
-                if (id != EditUser.ID)
-                    return NotFound();
-
                 try
                 {
-                    appDBcontext.Update(EditUser);
+                    appDBcontext.Update(user);
                     await appDBcontext.SaveChangesAsync();
                     return RedirectToAction(nameof(Index));
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!UserExists(id))
+                    if (!UserExists(user.ID))
                     {
-                        TempData["ErrorMessage"] = "This user has been deleted.";
-                        return RedirectToAction(nameof(Index));
+                        TempData["ErrorMessage"] = "The User has been deleted.";
+                    return RedirectToAction(nameof(Index));
                     }
-
-                    throw;
+                    else { throw; }
                 }
-                
             }
-            return View(EditUser);
+            return View(user); 
         }
-        private bool UserExists(int id)//checks if user exists
+        
+        private bool UserExists(int id)
         {
             return appDBcontext.User.Any(bI => bI.ID == id);
         }
+
 
 
         //Reset Password
