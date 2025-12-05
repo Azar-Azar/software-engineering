@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using software_engineering.Models;
+using System.Diagnostics;
 using System.Numerics;
 
 namespace software_engineering.Lib
@@ -53,14 +54,53 @@ namespace software_engineering.Lib
             return points;
         }
 
+        private List<PressurePoint> GetRegionFrom(
+            PressurePoint origin,
+            int tolerance,
+            HashSet<string>? discovered
+        ) {
+            discovered ??= [];
+
+            List<PressurePoint> zone = [];
+            Stack<PressurePoint> frontier = [];
+
+            frontier.Push(origin);
+            discovered.Add(origin.Serialise());
+
+            while (frontier.Count > 0)
+            {
+                PressurePoint node = frontier.Pop();
+                if (node.pressure < (origin.pressure - tolerance)) continue;
+                if (node.pressure == 0) continue;
+
+                zone.Add(node);
+
+                List<PressurePoint> adjacentPoints = GetAdjacentPoints(node);
+
+                foreach (PressurePoint adjPoint in adjacentPoints)
+                {
+                    if (discovered.Contains(adjPoint.Serialise())) continue;
+
+                    frontier.Push(adjPoint);
+                    discovered.Add(adjPoint.Serialise());
+                }
+            }
+
+            return zone;
+        }
+
+        public List<PressurePoint> Flatten()
+        {
+            return Data.SelectMany((row, rowIndex) => row.Select(
+                (point, column) => new PressurePoint(column, rowIndex, point))
+            ).ToList();
+        }
+
         public List<List<PressurePoint>> GetHighPressureRegions(
             int threshold = 200,
             int tolerance = 40
         ) {
-            int lowerBound = threshold - tolerance;
-
             List<List<PressurePoint>> zones = [];
-
             HashSet<string> discovered = [];
 
             for (int rowI = 0; rowI < Data.Count; rowI++)
@@ -73,45 +113,38 @@ namespace software_engineering.Lib
                     if (point.pressure < threshold) continue;
                     if (discovered.Contains(point.Serialise())) continue;
 
-                    List<PressurePoint> zone = [];
-                    Stack<PressurePoint> frontier = [];
-
-                    frontier.Push(point);
-                    discovered.Add(point.Serialise());
-
-                    while (frontier.Count > 0)
-                    {
-                        PressurePoint node = frontier.Pop();
-                        if (node.pressure < lowerBound) continue;
-
-                        zone.Add(node);
-
-                        List<PressurePoint> adjacentPoints = GetAdjacentPoints(node);
-
-                        foreach (PressurePoint adjPoint in adjacentPoints)
-                        {
-                            if (discovered.Contains(adjPoint.Serialise())) continue;
-
-                            frontier.Push(adjPoint);
-                            discovered.Add(adjPoint.Serialise());
-                        }
-                    }
-
-                    zones.Add(zone);
+                    zones.Add(GetRegionFrom(point, tolerance, discovered));
                 }
             }
 
             return zones;
         }
 
-        public int GetPeakPressureIndex()
+        public int? GetPeakPressureIndex(int minimumPixels = 10)
         {
-            throw new NotImplementedException();
+            List<PressurePoint> flatData = Flatten();
+
+            while (true)
+            {
+                PressurePoint? highestPoint = flatData.MaxBy(point => point.pressure);
+                if (highestPoint == null) return null;
+
+                List<PressurePoint> zone = GetRegionFrom(highestPoint, 40, null);
+                flatData.Remove(highestPoint);
+
+                if (zone.Count >= minimumPixels) return highestPoint.pressure;
+            }
         }
 
-        public int GetContactAreaPercentage()
+        public float GetContactAreaPercentage(int lowerThreshold = 64)
         {
-            throw new NotImplementedException();
+            List<PressurePoint> flatData = Flatten();
+
+            int eligibleCount = flatData.Where(
+                point => point.pressure >= lowerThreshold
+            ).Count();
+
+            return ((float) eligibleCount / (float) flatData.Count) * 100f;
         }
 
         public void Print()

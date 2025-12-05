@@ -5,10 +5,6 @@ using System.Diagnostics;
 
 //var metrics = new Metrics(@"C:\Users\wc296\AppData\Local\Development\SampleData\GTLB-Data\1c0fd777_20251011.csv");
 
-//Debug.WriteLine(metrics.matrices.Count);
-//Debug.WriteLine(metrics.matrices.ElementAt(0));
-//Debug.WriteLine(metrics.matrices.ElementAt(0).GetHighPressureRegions(30, 20).Count);
-
 //Debug.WriteLine("first matrix:");
 //metrics.matrices.ElementAt(0).Print();
 
@@ -23,6 +19,11 @@ using System.Diagnostics;
 
 //    Debug.WriteLine(areaString);
 //}
+
+//Debug.WriteLine("Peak pressure index:");
+//Debug.WriteLine(metrics.matrices.ElementAt(0).GetPeakPressureIndex());
+//Debug.WriteLine("Contact Area Percentage:");
+//Debug.WriteLine(metrics.matrices.ElementAt(0).GetContactAreaPercentage().ToString() + "%");
 
 var builder = WebApplication.CreateBuilder(args);
 
