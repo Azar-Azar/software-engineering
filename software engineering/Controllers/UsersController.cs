@@ -248,5 +248,13 @@ namespace software_engineering.Controllers
                     return View();
             }
         }
+
+        [HttpGet]
+        public IActionResult Logout()
+        {
+            // Clear all session data
+            HttpContext.Session.Clear();
+            return RedirectToAction("Login");
+        }
     }
 }
