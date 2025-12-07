@@ -1,0 +1,104 @@
+@model List<PressureData>
+
+@{
+    ViewData["Title"] = "Flagged Data for Review";
+}
+
+<div class="container mt-5">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1>Flagged Data for Review</h1>
+            <p class="text-muted">Data records requiring your attention (@Model.Count)</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="@Url.Action("Dashboard", "Clinician")" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Back to Dashboard
+            </a>
+        </div>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0">Flagged Records (@Model.Count)</h5>
+                </div>
+                <div class="card-body">
+                    @if (Model.Count == 0)
+                    {
+                        <p class="text-muted text-center">No flagged data at this time. Great job!</p>
+                    }
+                    else
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover table-sm">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Patient</th>
+                                        <th>Timestamp</th>
+                                        <th>Peak Pressure</th>
+                                        <th>Contact Area %</th>
+                                        <th>Type</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var data in Model)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <strong>@data.User.Fullname</strong>
+                                            </td>
+                                            <td>@data.Timestamp.ToString("yyyy-MM-dd HH:mm:ss")</td>
+                                            <td>@data.PeakPressureIndex.ToString("F2")</td>
+                                            <td>@data.ContactAreaPercentage.ToString("F2")%</td>
+                                            <td>
+                                                @if (data.IsHighPressure)
+                                                {
+                                                    <span class="badge bg-danger">High Pressure</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-info">Flagged</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                <a href="@Url.Action("DataDetail", "Clinician", new { id = data.DataID })" 
+                                                   class="btn btn-sm btn-primary">
+                                                    <i class="bi bi-eye-fill"></i> Review
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .container {
+        max-width: 1200px;
+    }
+    
+    .card {
+        border: none;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .table-hover tbody tr:hover {
+        background-color: #f5f5f5;
+    }
+</style>

@@ -1,0 +1,743 @@
+@{
+    ViewData["Title"] = "Patient Details";
+    dynamic viewModel = Model;
+    var patient = (Users)viewModel.Patient;
+    var pressureData = (List<software_engineering.Models.PressureData>)viewModel.PressureData;
+    var highPressureCount = (int)viewModel.HighPressureCount;
+    var flaggedCount = (int)viewModel.FlaggedCount;
+}
+
+<div class="container mt-5">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1>@patient.Fullname</h1>
+            <p class="text-muted">Patient ID: @patient.ID</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="@Url.Action("Dashboard", "Clinician")" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Back to Dashboard
+            </a>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h6 class="card-title text-muted">Total Records</h6>
+                    <h3 class="card-text">@pressureData.Count</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h6 class="card-title text-muted">High Pressure</h6>
+                    <h3 class="card-text text-danger">@highPressureCount</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h6 class="card-title text-muted">Flagged for Review</h6>
+                    <h3 class="card-text text-warning">@flaggedCount</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h6 class="card-title text-muted">Patient Email</h6>
+                    <p class="card-text small">@patient.Email</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Pressure Map Visualization (@pressureData.Count readings)</h5>
+                </div>
+                <div class="card-body">
+                    @if (pressureData.Count == 0)
+                    {
+                        <p class="text-muted text-center">No pressure data available for this patient.</p>
+                    }
+                    else
+                    {
+                        <div class="mb-3">
+                            <label for="heatmapRecordSelector" class="form-label">Select Recording (by timestamp):</label>
+                            <select id="heatmapRecordSelector" class="form-select" style="max-width:400px;">
+                                <option value="avg">Average Pressure Map (All Readings)</option>
+                                @foreach (var data in pressureData.OrderByDescending(x => x.Timestamp).Take(20))
+                                {
+                                    <option value="@data.DataID">@data.Timestamp.ToString("yyyy-MM-dd HH:mm:ss") - Peak: @data.PeakPressureIndex.ToString("F2")</option>
+                                }
+                                @if (pressureData.Count > 20)
+                                {
+                                    <option value="oldest">Oldest Recording</option>
+                                }
+                            </select>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-lg-7">
+                                <div style="overflow-x: auto; text-align: center;">
+                                    <div class="alert alert-info" role="alert">
+                                        <strong>Pressure Heatmap:</strong> Hover over cells to see exact pressure values. Click cells to mark high-pressure points.
+                                    </div>
+                                    <div style="position: relative; display: inline-block;">
+                                        <canvas id="pressureHeatmap" style="max-width: 100%; height: auto; border: 1px solid #ddd; border-radius: 4px; cursor: crosshair;"></canvas>
+                                        <div id="heatmapTooltip" style="position: absolute; background: rgba(0,0,0,0.9); color: white; padding: 8px 12px; border-radius: 4px; font-size: 12px; pointer-events: none; display: none; z-index: 1000; white-space: nowrap;">
+                                            <div><strong id="tooltipValue">-</strong></div>
+                                            <div id="tooltipPos" style="font-size: 11px; color: #ccc;">Row: -, Col: -</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-5">
+                                <div class="row g-2">
+                                    <div class="col-md-6">
+                                        <div class="card border-0 bg-light">
+                                            <div class="card-body">
+                                                <small class="d-block text-muted">Contact Area</small>
+                                                <h4 id="displayContactArea" class="card-text">-</h4>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="card border-0 bg-light">
+                                            <div class="card-body">
+                                                <small class="d-block text-muted">Peak pressure</small>
+                                                <h4 id="displayPeakPressure" class="card-text">-</h4>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="card border-0 bg-light">
+                                            <div class="card-body">
+                                                <small class="d-block text-muted">Risk grade</small>
+                                                <h4 id="displayRiskGrade" class="card-text text-danger">-</h4>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="card border-0 bg-light">
+                                            <div class="card-body">
+                                                <small class="d-block text-muted">High pressure detected at</small>
+                                                <h5 id="displayTimestamp" class="card-text text-danger" style="font-size: 0.95rem;">-</h5>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-2 mb-3">
+                            <button type="button" id="flagHighPressureBtn" class="btn btn-danger btn-sm">
+                                <i class="bi bi-flag"></i> Flag This Reading for Review
+                            </button>
+                            <button type="button" id="clearFlagsBtn" class="btn btn-secondary btn-sm">
+                                <i class="bi bi-x-circle"></i> Clear Marked Points
+                            </button>
+                            <small class="d-block mt-2 text-muted">
+                                <strong>Marked cells:</strong> <span id="markedCellCount">0</span>
+                            </small>
+                        </div>
+
+                        <div class="mt-3 p-3 bg-light rounded">
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <small class="d-block text-muted">Peak Pressure</small>
+                                    <strong id="heatmapPeakPressure">-</strong>
+                                </div>
+                                <div class="col-md-3">
+                                    <small class="d-block text-muted">Contact Area %</small>
+                                    <strong id="heatmapContactArea">-</strong>
+                                </div>
+                                <div class="col-md-3">
+                                    <small class="d-block text-muted">Average Pressure</small>
+                                    <strong id="heatmapAvgPressure">-</strong>
+                                </div>
+                                <div class="col-md-3">
+                                    <small class="d-block text-muted">Flagged Status</small>
+                                    <strong id="heatmapStatus">-</strong>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Show previously flagged marked points -->
+                        <div id="flaggedPointsInfo" class="mt-3 p-3 bg-danger bg-opacity-10 border border-danger rounded" style="display:none;">
+                            <small class="d-block text-muted mb-2"><strong>Previously Marked High-Pressure Points:</strong></small>
+                            <small id="flaggedPointsList" class="d-block text-danger"></small>
+                        </div>
+
+                        <!-- Color Legend -->
+                        <div class="mt-3 p-2 bg-light rounded">
+                            <small class="d-block mb-2"><strong>Color Scale (Pressure Intensity)</strong></small>
+                            <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                                <span><span style="display:inline-block; width:20px; height:20px; background:#0000FF; border-radius:2px;"></span> Low (0-20)</span>
+                                <span><span style="display:inline-block; width:20px; height:20px; background:#00FF00; border-radius:2px;"></span> Medium (20-50)</span>
+                                <span><span style="display:inline-block; width:20px; height:20px; background:#FFFF00; border-radius:2px;"></span> High (50-80)</span>
+                                <span><span style="display:inline-block; width:20px; height:20px; background:#FF0000; border-radius:2px;"></span> Critical (80+)</span>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">Pressure Metrics Over Time</h5>
+                </div>
+                <div class="card-body">
+                    <form id="timeFilterForm" class="mb-3">
+                        <label for="timePeriod" class="form-label">Select Time Period:</label>
+                        <select id="timePeriod" class="form-select" style="width:auto;display:inline-block">
+                            <option value="1h">Last 1 hour</option>
+                            <option value="6h">Last 6 hours</option>
+                            <option value="24h" selected>Last 24 hours</option>
+                            <option value="all">All Data</option>
+                            <option value="custom">Custom Range</option>
+                        </select>
+                        <span id="customRangeInputs" style="display:none;">
+                            <input type="datetime-local" id="customStart" class="form-control d-inline-block" style="width:auto;max-width:200px;" />
+                            <span>to</span>
+                            <input type="datetime-local" id="customEnd" class="form-control d-inline-block" style="width:auto;max-width:200px;" />
+                            <button type="button" id="applyCustomRange" class="btn btn-primary btn-sm ms-2">Apply</button>
+                        </span>
+                    </form>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <canvas id="peakPressureChart"></canvas>
+                        </div>
+                        <div class="col-md-6">
+                            <canvas id="contactAreaChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Export Buttons -->
+    <div class="mb-3 text-end">
+        <button id="exportCsvBtn" class="btn btn-outline-success btn-sm me-2"><i class="bi bi-file-earmark-spreadsheet"></i> Export CSV</button>
+        <button id="exportPdfBtn" class="btn btn-outline-danger btn-sm"><i class="bi bi-file-earmark-pdf"></i> Export PDF</button>
+    </div>
+    <!-- jsPDF CDN for PDF export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <script>
+        // Prepare data from Razor model - ONLY recent readings
+        const allData = [
+            @foreach (var d in pressureData.OrderByDescending(x => x.Timestamp).Take(20)) {
+                <text>{
+                    id: @d.DataID,
+                    timestamp: '@d.Timestamp.ToString("yyyy-MM-dd HH:mm:ss")',
+                    peak: @d.PeakPressureIndex,
+                    area: @d.ContactAreaPercentage,
+                    rawData: '@Html.Raw(d.RawData?.Replace("\n", "\\n").Replace("\"", "\\\"") ?? "")',
+                    isHighPressure: @(d.IsHighPressure ? "true" : "false"),
+                    reviewNotes: '@Html.Raw(d.ReviewNotes?.Replace("\"", "\\\"") ?? "")',
+                    flaggedForReview: @(d.FlaggedForReview ? "true" : "false")
+                },</text>
+            }
+        ];
+
+        // Cache for parsed data
+        const dataCache = new Map();
+        const matrixCache = new Map();
+        let avgMatrixCache = null;
+
+        // Parse pressure data from CSV line (with caching)
+        function parseRawData(csvLine) {
+            if (dataCache.has(csvLine)) {
+                return dataCache.get(csvLine);
+            }
+            const values = csvLine.split(',').map(v => {
+                const num = parseFloat(v.trim());
+                return isNaN(num) ? 0 : num;
+            });
+            dataCache.set(csvLine, values);
+            return values;
+        }
+
+        // Convert 1D array to 2D matrix (with caching)
+        function create32x32Matrix(flatArray) {
+            const key = flatArray.join('|');
+            if (matrixCache.has(key)) {
+                return matrixCache.get(key);
+            }
+            const matrix = [];
+            for (let i = 0; i < 32; i++) {
+                matrix[i] = flatArray.slice(i * 32, (i + 1) * 32);
+            }
+            matrixCache.set(key, matrix);
+            return matrix;
+        }
+
+        // Get color based on pressure value
+        function getPressureColor(value) {
+            if (value === 0 || value === null) return '#E8E8E8'; // Light gray for no data
+            if (value < 20) return '#0000FF'; // Blue
+            if (value < 50) return '#00FF00'; // Green
+            if (value < 80) return '#FFFF00'; // Yellow
+            return '#FF0000'; // Red for critical
+        }
+
+        // Track marked/flagged cells
+        let markedCells = new Set();
+        let currentRecordId = 'avg';
+        const cellSize = 20;
+        const padding = 30;
+        let currentMatrix = [];
+
+        // Draw heatmap on canvas
+        function drawHeatmap(canvas, matrix) {
+            const ctx = canvas.getContext('2d');
+            
+            canvas.width = 32 * cellSize + padding * 2;
+            canvas.height = 32 * cellSize + padding * 2;
+            currentMatrix = matrix;
+
+            // Draw title
+            ctx.font = 'bold 14px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillStyle = '#333';
+            ctx.fillText('Pressure Heatmap (32x32 Sensor Matrix)', canvas.width / 2, 20);
+
+            // Draw cells
+            for (let row = 0; row < 32; row++) {
+                for (let col = 0; col < 32; col++) {
+                    const value = matrix[row][col] || 0;
+                    const x = padding + col * cellSize;
+                    const y = padding + row * cellSize;
+                    const cellKey = `${row},${col}`;
+
+                    // Draw base cell color
+                    ctx.fillStyle = getPressureColor(value);
+                    ctx.fillRect(x, y, cellSize, cellSize);
+                    ctx.strokeStyle = '#ccc';
+                    ctx.lineWidth = 0.5;
+                    ctx.strokeRect(x, y, cellSize, cellSize);
+
+                    // Draw red border if marked
+                    if (markedCells.has(cellKey)) {
+                        ctx.strokeStyle = '#FF0000';
+                        ctx.lineWidth = 3;
+                        ctx.strokeRect(x, y, cellSize, cellSize);
+                    }
+                }
+            }
+
+            // Draw axes labels
+            ctx.font = '10px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillStyle = '#666';
+            for (let i = 0; i < 32; i += 4) {
+                ctx.fillText(i, padding + i * cellSize + cellSize / 2, padding - 5);
+                ctx.fillText(i, padding - 10, padding + i * cellSize + cellSize / 2 + 3);
+            }
+            ctx.textAlign = 'center';
+            ctx.fillText('Column', canvas.width / 2, canvas.height - 5);
+            ctx.save();
+            ctx.translate(12, canvas.height / 2);
+            ctx.rotate(-Math.PI / 2);
+            ctx.fillText('Row', 0, 0);
+            ctx.restore();
+        }
+
+        // Handle canvas hover to show tooltip
+        const tooltip = document.getElementById('heatmapTooltip');
+        const canvas = document.getElementById('pressureHeatmap');
+        
+        canvas.addEventListener('mousemove', function(e) {
+            const rect = this.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            // Check if hover is within grid area
+            if (x < padding || y < padding || x > padding + 32 * cellSize || y > padding + 32 * cellSize) {
+                tooltip.style.display = 'none';
+                return;
+            }
+            
+            const col = Math.floor((x - padding) / cellSize);
+            const row = Math.floor((y - padding) / cellSize);
+            
+            if (row >= 0 && row < 32 && col >= 0 && col < 32) {
+                const value = currentMatrix[row][col];
+                document.getElementById('tooltipValue').textContent = value.toFixed(2) + ' mmHg';
+                document.getElementById('tooltipPos').textContent = `Row: ${row}, Col: ${col}`;
+                tooltip.style.left = (e.clientX - rect.left + 10) + 'px';
+                tooltip.style.top = (e.clientY - rect.top - 30) + 'px';
+                tooltip.style.display = 'block';
+            } else {
+                tooltip.style.display = 'none';
+            }
+        });
+
+        canvas.addEventListener('mouseleave', function() {
+            tooltip.style.display = 'none';
+        });
+
+        // Handle canvas click to mark cells
+        canvas.addEventListener('click', function(e) {
+            const rect = this.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            // Check if click is within grid area
+            if (x < padding || y < padding) return;
+            
+            const col = Math.floor((x - padding) / cellSize);
+            const row = Math.floor((y - padding) / cellSize);
+            
+            if (row >= 0 && row < 32 && col >= 0 && col < 32) {
+                const cellKey = `${row},${col}`;
+                if (markedCells.has(cellKey)) {
+                    markedCells.delete(cellKey);
+                } else {
+                    markedCells.add(cellKey);
+                }
+                document.getElementById('markedCellCount').textContent = markedCells.size;
+                // Redraw to show marked cell
+                updateHeatmap(currentRecordId);
+            }
+        });
+
+        // Update heatmap display (optimized)
+        function updateHeatmap(recordId) {
+            const canvas = document.getElementById('pressureHeatmap');
+            let matrix = [];
+            let stats = { peak: 0, area: 0, avg: 0, high: false, timestamp: '' };
+
+            if (recordId === 'avg') {
+                // Use cached average if available
+                if (!avgMatrixCache) {
+                    const allMatrices = [];
+                    for (let record of allData) {
+                        if (!record.rawData) continue;
+                        const values = parseRawData(record.rawData);
+                        allMatrices.push(values);
+                    }
+                    
+                    if (allMatrices.length === 0) {
+                        document.getElementById('heatmapPeakPressure').textContent = '0';
+                        document.getElementById('heatmapContactArea').textContent = '0%';
+                        document.getElementById('heatmapAvgPressure').textContent = '0';
+                        return;
+                    }
+
+                    // Average the values
+                    const avgValues = new Array(1024).fill(0);
+                    for (let values of allMatrices) {
+                        for (let i = 0; i < Math.min(values.length, 1024); i++) {
+                            avgValues[i] += values[i];
+                        }
+                    }
+                    for (let i = 0; i < avgValues.length; i++) {
+                        avgValues[i] = avgValues[i] / allMatrices.length;
+                    }
+                    
+                    avgMatrixCache = {
+                        matrix: create32x32Matrix(avgValues),
+                        values: avgValues,
+                        peak: Math.max(...avgValues),
+                        avg: avgValues.reduce((a, b) => a + b, 0) / avgValues.length,
+                        area: (avgValues.filter(v => v >= 10).length / avgValues.length) * 100
+                    };
+                }
+                
+                matrix = avgMatrixCache.matrix;
+                stats.peak = avgMatrixCache.peak;
+                stats.avg = avgMatrixCache.avg;
+                stats.area = avgMatrixCache.area;
+                stats.timestamp = 'Average of recent readings';
+            } else {
+                // Show specific record
+                const record = allData.find(r => r.id == recordId);
+                if (!record || !record.rawData) return;
+                
+                const values = parseRawData(record.rawData);
+                matrix = create32x32Matrix(values);
+                stats.peak = record.peak;
+                stats.area = record.area;
+                const nonZeroValues = values.filter(v => v > 0);
+                stats.avg = nonZeroValues.length > 0 ? nonZeroValues.reduce((a, b) => a + b, 0) / nonZeroValues.length : 0;
+                stats.high = record.isHighPressure;
+                stats.timestamp = record.timestamp;
+
+                // Load previously flagged/marked points from ReviewNotes
+                if (record.reviewNotes && record.reviewNotes.includes('marked')) {
+                    // Parse flagged points from review notes like "Clinician marked 3 high-pressure point(s): (2,5),(8,10),(15,20)"
+                    const pointMatches = record.reviewNotes.match(/\((\d+),(\d+)\)/g);
+                    if (pointMatches) {
+                        markedCells.clear();
+                        pointMatches.forEach(match => {
+                            const [row, col] = match.slice(1, -1).split(',').map(Number);
+                            markedCells.add(`${row},${col}`);
+                        });
+                        document.getElementById('markedCellCount').textContent = markedCells.size;
+                    }
+                    // Show previously flagged info
+                    document.getElementById('flaggedPointsList').textContent = record.reviewNotes;
+                    document.getElementById('flaggedPointsInfo').style.display = '';
+                } else {
+                    markedCells.clear();
+                    document.getElementById('markedCellCount').textContent = '0';
+                    document.getElementById('flaggedPointsInfo').style.display = 'none';
+                }
+            }
+
+            drawHeatmap(canvas, matrix);
+
+            // Update stats display
+            document.getElementById('heatmapPeakPressure').textContent = stats.peak.toFixed(2);
+            document.getElementById('heatmapContactArea').textContent = stats.area.toFixed(2) + '%';
+            document.getElementById('heatmapAvgPressure').textContent = stats.avg.toFixed(2);
+            
+            // Update right panel display
+            document.getElementById('displayContactArea').textContent = stats.area.toFixed(2) + '%';
+            document.getElementById('displayPeakPressure').textContent = stats.peak.toFixed(2) + ' mmHg';
+            
+            // Calculate risk grade based on peak pressure (0-10 scale)
+            let riskGrade = Math.min(10, Math.round((stats.peak / 200) * 10));
+            if (riskGrade === 0 && stats.peak > 0) riskGrade = 1;
+            document.getElementById('displayRiskGrade').textContent = riskGrade + ' /10';
+            
+            // Display timestamp or detection time
+            if (recordId === 'avg') {
+                document.getElementById('displayTimestamp').textContent = '(Average of readings)';
+            } else {
+                const record = allData.find(r => r.id == recordId);
+                if (record && record.timestamp) {
+                    const timeStr = record.timestamp.split(' ')[1] || '-';
+                    document.getElementById('displayTimestamp').textContent = timeStr;
+                } else {
+                    document.getElementById('displayTimestamp').textContent = '-';
+                }
+            }
+            
+            document.getElementById('heatmapStatus').innerHTML = markedCells.size > 0 ? 
+                '<span class="badge bg-danger">Flagged by Clinician</span>' : 
+                (stats.high ? '<span class="badge bg-warning">Auto-detected High</span>' : '<span class="badge bg-success">Normal</span>');
+        }
+
+        // Flag this reading for review with marked points
+        document.getElementById('flagHighPressureBtn').addEventListener('click', async function() {
+            if (markedCells.size === 0) {
+                alert('Please mark at least one high-pressure point on the heatmap');
+                return;
+            }
+            
+            const recordId = currentRecordId === 'avg' ? null : currentRecordId;
+            if (!recordId) {
+                alert('Cannot flag average view. Please select a specific reading.');
+                return;
+            }
+
+            const markedPoints = Array.from(markedCells).map(cell => {
+                const [row, col] = cell.split(',').map(Number);
+                return { row: row, col: col, value: currentMatrix[row][col] };
+            });
+
+            const reviewNotes = `Clinician marked ${markedPoints.length} high-pressure point(s): ${markedPoints.map(p => `(${p.row},${p.col})`).join(', ')}`;
+
+            try {
+                const response = await fetch(`/Clinician/FlagHighPressure`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ dataId: recordId, reviewNotes: reviewNotes })
+                });
+
+                if (response.ok) {
+                    alert(`Successfully flagged for review with ${markedPoints.length} marked point(s)`);
+                    markedCells.clear();
+                    document.getElementById('markedCellCount').textContent = '0';
+                    updateHeatmap(currentRecordId);
+                } else {
+                    alert('Error flagging reading');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error flagging reading');
+            }
+        });
+
+        // Clear all marked points
+        document.getElementById('clearFlagsBtn').addEventListener('click', function() {
+            markedCells.clear();
+            document.getElementById('markedCellCount').textContent = '0';
+            updateHeatmap(currentRecordId);
+        });
+
+        // Event listener for selector
+        document.getElementById('heatmapRecordSelector').addEventListener('change', function() {
+            currentRecordId = this.value;
+            markedCells.clear();
+            document.getElementById('markedCellCount').textContent = '0';
+            updateHeatmap(this.value);
+        });
+
+        // Initial render
+        updateHeatmap('avg');
+
+        function filterData(period, customStart, customEnd) {
+            if (period === 'all') return allData;
+            const now = new Date();
+            let cutoff = new Date();
+            if (period === '1h') cutoff.setHours(now.getHours() - 1);
+            else if (period === '6h') cutoff.setHours(now.getHours() - 6);
+            else if (period === '24h') cutoff.setHours(now.getHours() - 24);
+            else if (period === 'custom' && customStart && customEnd) {
+                const start = new Date(customStart);
+                const end = new Date(customEnd);
+                return allData.filter(d => {
+                    const t = new Date(d.timestamp);
+                    return t >= start && t <= end;
+                });
+            }
+            if (period !== 'custom') {
+                return allData.filter(d => new Date(d.timestamp) >= cutoff);
+            }
+            return allData;
+        }
+
+        function renderCharts(period, customStart, customEnd) {
+            const data = filterData(period, customStart, customEnd);
+            const labels = data.map(d => d.timestamp);
+            const peakData = data.map(d => d.peak);
+            const areaData = data.map(d => d.area);
+
+            // Destroy old charts if they exist
+            if (window.peakChart) window.peakChart.destroy();
+            if (window.areaChart) window.areaChart.destroy();
+
+            window.peakChart = new Chart(document.getElementById('peakPressureChart'), {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Peak Pressure',
+                        data: peakData,
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                        tension: 0.2,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { display: true } },
+                    scales: { x: { title: { display: true, text: 'Timestamp' } }, y: { title: { display: true, text: 'Peak Pressure' } } }
+                }
+            });
+
+            window.areaChart = new Chart(document.getElementById('contactAreaChart'), {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Contact Area %',
+                        data: areaData,
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                        tension: 0.2,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { display: true } },
+                    scales: { x: { title: { display: true, text: 'Timestamp' } }, y: { title: { display: true, text: 'Contact Area %' } } }
+                }
+            });
+        }
+
+        function exportToCsv(data) {
+            if (!data.length) return;
+            const header = Object.keys(data[0]);
+            const csvRows = [header.join(",")];
+            for (const row of data) {
+                csvRows.push(header.map(field => JSON.stringify(row[field] ?? "")).join(","));
+            }
+            const csv = csvRows.join("\n");
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.setAttribute('hidden', '');
+            a.setAttribute('href', url);
+            a.setAttribute('download', 'pressure_data.csv');
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+
+        document.getElementById('exportCsvBtn').addEventListener('click', function() {
+            const period = document.getElementById('timePeriod').value;
+            const customStart = document.getElementById('customStart')?.value;
+            const customEnd = document.getElementById('customEnd')?.value;
+            const filtered = filterData(period, customStart, customEnd);
+            exportToCsv(filtered);
+        });
+
+        document.getElementById('exportPdfBtn').addEventListener('click', function() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            doc.text('Pressure Metrics Over Time', 10, 10);
+            // Export both charts as images
+            const peakChart = document.getElementById('peakPressureChart');
+            const areaChart = document.getElementById('contactAreaChart');
+            doc.addImage(peakChart.toDataURL('image/png'), 'PNG', 10, 20, 90, 50);
+            doc.addImage(areaChart.toDataURL('image/png'), 'PNG', 10, 80, 90, 50);
+            doc.save('pressure_metrics.pdf');
+        });
+
+        document.getElementById('timePeriod').addEventListener('change', function() {
+            if (this.value === 'custom') {
+                document.getElementById('customRangeInputs').style.display = '';
+            } else {
+                document.getElementById('customRangeInputs').style.display = 'none';
+                // Lazy load charts only when needed
+                setTimeout(() => renderCharts(this.value), 100);
+            }
+        });
+        document.getElementById('applyCustomRange').addEventListener('click', function() {
+            const start = document.getElementById('customStart').value;
+            const end = document.getElementById('customEnd').value;
+            setTimeout(() => renderCharts('custom', start, end), 100);
+        });
+
+        // Defer initial chart render to after page load
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(() => renderCharts('24h'), 500);
+        });
+    </script>
+</div>
+
+<style>
+    .container {
+        max-width: 1200px;
+    }
+    
+    .card {
+        border: none;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .table-hover tbody tr:hover {
+        background-color: #f5f5f5;
+    }
+</style>

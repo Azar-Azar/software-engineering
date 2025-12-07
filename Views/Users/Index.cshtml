@@ -1,0 +1,36 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+@model IEnumerable<Users>
+<h2>Users List</h2>
+<a asp-action="AddUser">Add new user</a>
+<table>
+    <tr>
+        <th class="p-3">Id</th>
+        <th class="p-3">Name</th>
+        <th class="p-3">Email</th>
+        <th class="p-3">Role</th>
+    </tr>
+
+    @foreach (var user in Model)
+    {
+        <tr>
+            <td class="p-3"> @user.ID </td>
+            <td class="p-3"> @user.Fullname </td>
+        <td class="p-3"> @user.Email </td> 
+        <td class="p-3">@user.Role </td>
+            <td class="p-3"><a asp-action="Delete" asp-route-id="@user.ID">Delete </a></td>
+            <td class="p-3"><a asp-action="EditUser" asp-route-id="@user.ID">Edit </a></td>
+            <td class="p-3"><a asp-action="ResetPassword" asp-route-id="@user.ID">Reset Password</a></td>
+        </tr>
+    }
+
+</table>
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-warning">
+        @TempData["ErrorMessage"]
+    </div>
+}

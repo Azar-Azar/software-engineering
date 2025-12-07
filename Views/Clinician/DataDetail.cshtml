@@ -1,0 +1,138 @@
+@model PressureData
+
+@{
+    ViewData["Title"] = "Data Detail";
+}
+
+<div class="container mt-5">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1>Pressure Data Detail</h1>
+            <p class="text-muted">@Model.Timestamp.ToString("yyyy-MM-dd HH:mm:ss")</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="@Url.Action("PatientDetails", "Clinician", new { id = Model.UserID })" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Back to Patient
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Patient Information</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Name:</strong> @Model.User.Fullname</p>
+                    <p><strong>Email:</strong> @Model.User.Email</p>
+                    <p><strong>Patient ID:</strong> @Model.User.ID</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">Data Status</h5>
+                </div>
+                <div class="card-body">
+                    <p>
+                        <strong>High Pressure:</strong>
+                        @if (Model.IsHighPressure)
+                        {
+                            <span class="badge bg-danger">YES - Critical</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-success">NO - Normal</span>
+                        }
+                    </p>
+                    <p>
+                        <strong>Flagged for Review:</strong>
+                        @if (Model.FlaggedForReview)
+                        {
+                            <span class="badge bg-warning text-dark">YES</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary">NO</span>
+                        }
+                    </p>
+                    <p><strong>Data ID:</strong> @Model.DataID</p>
+                    <p><strong>Timestamp:</strong> @Model.Timestamp.ToString("yyyy-MM-dd HH:mm:ss")</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card mb-4">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">Pressure Metrics</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-6">
+                            <div class="p-3 bg-light rounded">
+                                <h6 class="text-muted">Peak Pressure Index</h6>
+                                <h3 class="text-primary">@Model.PeakPressureIndex.ToString("F2")</h3>
+                                <small class="text-muted">Highest recorded pressure (excluding areas < 10px)</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="p-3 bg-light rounded">
+                                <h6 class="text-muted">Contact Area Percentage</h6>
+                                <h3 class="text-success">@Model.ContactAreaPercentage.ToString("F2")%</h3>
+                                <small class="text-muted">Percentage of sensor mat covered</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if (!string.IsNullOrEmpty(Model.ReviewNotes))
+    {
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card mb-4">
+                    <div class="card-header bg-secondary text-white">
+                        <h5 class="mb-0">Review Notes</h5>
+                    </div>
+                    <div class="card-body">
+                        <p>@Model.ReviewNotes</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Comments Section -->
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card mb-4">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0">Comments & Discussion</h5>
+                </div>
+                <div class="card-body">
+                    @await Html.PartialAsync("_CommentsSection", Model.DataID)
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .container {
+        max-width: 1000px;
+    }
+    
+    .card {
+        border: none;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        margin-bottom: 20px;
+    }
+</style>

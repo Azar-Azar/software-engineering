@@ -1,0 +1,136 @@
+@{
+    ViewData["Title"] = "Import Pressure Data";
+}
+@inject software_engineering.Data.AppDBContext db
+
+<div class="container mt-5">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1>Import Pressure Data from CSV</h1>
+            <p class="text-muted">Upload sensor data CSV files for patients.</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="@Url.Action("Dashboard", "Clinician")" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Back to Dashboard
+            </a>
+        </div>
+    </div>
+
+    @if (!string.IsNullOrEmpty(TempData["SuccessMessage"] as string))
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (!string.IsNullOrEmpty(TempData["ErrorMessage"] as string))
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Upload Sensor Data</h5>
+                </div>
+                <div class="card-body">
+                    <form asp-action="UploadCSV" method="post" enctype="multipart/form-data">
+                        <div class="mb-3">
+                            <label for="userId" class="form-label">Select Patient</label>
+                            <select class="form-control" id="userId" name="userId" required>
+                                <option value="">-- Select a Patient --</option>
+                                @{
+                                    var patients = db.User.Where(u => u.Role == software_engineering.Models.Roles.user).ToList();
+                                    foreach (var patient in patients)
+                                    {
+                                        <option value="@patient.ID">@patient.Fullname (ID: @patient.ID)</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="file" class="form-label">Select CSV File (32x32 Sensor Matrix)</label>
+                            <input type="file" class="form-control" id="file" name="file" accept=".csv" required>
+                            <small class="form-text text-muted">
+                                Each CSV file contains multiple 32x32 pressure readings. Each reading is 32 rows (each row = 32 values).
+                            </small>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-upload"></i> Upload File
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">CSV Format Requirements</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Format:</strong> 32x32 Pressure Sensor Matrix (Row-wise)</p>
+                    <ul>
+                        <li>Each line contains 32 comma-separated values (one row of the 32x32 matrix)</li>
+                        <li>Every 32 consecutive lines form one complete pressure reading</li>
+                        <li>Values represent pressure readings from the sensor matrix</li>
+                        <li>Values can be integers or floating-point numbers</li>
+                    </ul>
+
+                    <p><strong>Processing:</strong></p>
+                    <ul>
+                        <li>Peak Pressure Index = Maximum value in the matrix (from cells with pressure ≥ 10)</li>
+                        <li>Contact Area % = Percentage of cells with pressure ≥ 10</li>
+                        <li>Data with peak pressure > 80 is automatically flagged for review</li>
+                        <li>Each 32-line block is timestamped sequentially (starting from current time)</li>
+                    </ul>
+
+                    <p><strong>Example (first 2 rows of one 32x32 reading):</strong></p>
+                    <pre>0,0,61,0,35,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,23,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,55,30,39,30,0,0,0,0,0,0,0,0,0
+... (30 more rows to complete the 32x32 matrix)...</pre>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0">Tips</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="small">
+                        <li>Each CSV file should contain multiple rows of sensor data</li>
+                        <li>Files from the SampleData folder can be used directly</li>
+                        <li>One file = Multiple readings for one patient</li>
+                        <li>High pressure readings (>80) are auto-flagged</li>
+                        <li>All data is stored and can be viewed in patient details</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .container {
+        max-width: 1000px;
+    }
+    
+    .card {
+        border: none;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    pre {
+        background-color: #f5f5f5;
+        padding: 15px;
+        border-radius: 4px;
+        overflow-x: auto;
+        font-size: 11px;
+    }
+</style>
