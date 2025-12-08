@@ -9,7 +9,7 @@ namespace software_engineering.Data
         { }
         // connects the C# model Book to a table in the DB
         public DbSet<Models.Users> User { get; set; }
-        
+        public DbSet<Models.Alerts> Alerts { get; set; }
 
 
 

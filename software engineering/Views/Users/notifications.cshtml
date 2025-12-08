@@ -1,0 +1,250 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{}
+@model IEnumerable<Alerts>
+
+
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Notifications</title>
+
+
+
+    <style>
+
+        body {
+
+            margin: 40px;
+
+            background: #fff;
+
+        }
+
+
+
+        * {
+
+            font-family: system-ui;
+
+            font-weight: bold;
+
+        }
+
+
+
+        .bell {
+
+            font-size: 30px;
+
+            position: relative;
+
+        }
+
+
+
+        .badge {
+
+            position: absolute;
+
+            top: -8px;
+
+            right: 0;
+
+            background-color: #e63946;
+
+            color: white;
+
+            font-size: 12px;
+
+            width: 20px;
+
+            height: 20px;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            border-radius: 50%;
+
+        }
+
+
+
+        .notification {
+
+            display: flex;
+
+            flex-direction: column;
+
+            gap: 10px;
+
+            padding: 16px 20px;
+
+            margin-top: 20px;
+
+
+
+            border-width: 2px;
+
+            border-style: solid;
+
+            border-radius: 10px;
+
+        }
+
+        .notification-and-timestamp {
+
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: center;
+
+            font-size: 15px;
+
+        }
+
+        .icon-and-text {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 8px;
+
+        }
+
+
+
+        .type-icon {
+
+            font-size: 18px;
+
+        }
+
+
+
+        .name-and-dot {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 6px;
+
+        }
+
+
+
+        .dot {
+
+            width: 7px;
+
+            height: 7px;
+
+            background: #3b82f6;
+
+            border-radius: 50%;
+
+        }
+
+
+
+        .description {
+
+            font-size: 16px;
+
+            margin-left: 26px;
+
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+
+
+    <!-- Where the sidebar would be but we have none?? -->
+
+    <div></div>
+
+
+
+    <!-- Main notifications section -->
+
+    <div>
+
+        <h1>
+
+            <span class="bell">
+                🔔
+
+                <span class="badge">2</span> <!-- NOTIFICATION COUNT -->
+
+            </span>
+
+            Notifications
+
+        </h1>
+        
+        @foreach (var Alert in Model)
+    {
+        
+
+        <!-- NOTIFICATION DIV PUT THIS IN A FOREACH CLAUSE -->
+
+        <div class="notification" style="@(Alert.type == software_engineering.Models.Type.Comments
+            ? "border-color: #3b82f6;" : "border-color: #ff0000"
+        )">
+
+            <div class="notification-and-timestamp">
+
+                <div class="icon-and-text">
+
+                    <span class="type-icon">@(Alert.type == software_engineering.Models.Type.Comments
+                        ? "💬" : "⚠️"    
+                    )</span> <!-- CHANGE THIS TO WARN EMOJI FOR WARN ONES -->
+
+                    <div class="name-and-dot">
+
+                        <span>@Alert.Title </span> <!-- THE NAME -->
+
+                         
+                        @if (!Alert.Acknowledge)
+                        {
+                            <span class="dot"></span><!-- PUT IN IF CLAUSE. ONLY FOR UNREAD ONES -->
+                                
+                            
+                        }
+                    </div>
+
+                </div>
+
+                <span>@Alert.TimeStamp</span> <!-- THE TIMESTAMP -->
+
+            </div>
+
+            <div class="description">@Alert.Description</div> <!-- THE DESCRIPTION -->
+           
+        </div>
+    }
+    </div>
+
+
+
+</body>
+
+</html>

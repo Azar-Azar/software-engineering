@@ -256,5 +256,12 @@ namespace software_engineering.Controllers
             HttpContext.Session.Clear();
             return RedirectToAction("Login");
         }
+        public async Task<IActionResult> notifications()
+        {
+            //get the list from the DB asynchronously 
+            var Alert1 = await appDBcontext.Alerts.ToListAsync();
+
+            return View(Alert1);
+        }
     }
 }
