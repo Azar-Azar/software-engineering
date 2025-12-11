@@ -1,0 +1,120 @@
+﻿@model WebApplication6.Models.User
+
+@{
+    ViewData["Title"] = "User Profile";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Card</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6fc;
+        }
+
+        .card {
+            width: 420px;
+            background: #e6edf7;
+            padding: 25px;
+            border-radius: 18px;
+            margin: 40px auto;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            position: relative;
+        }
+
+        .top-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .avatar {
+            width: 90px;
+            height: 90px;
+            background: #d4d4d4;
+            border-radius: 50%;
+        }
+
+        .user-id {
+            font-size: 24px;
+            font-weight: bold;
+            position: absolute;
+            left: 50%;
+            top: 650px;
+            transform: translateX(-50%);
+        }
+
+        .badge {
+            background: #6a4ff7;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .info-group {
+            margin-top: 40px;
+        }
+
+        .info-row {
+            background: white;
+            padding: 14px 18px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 16px;
+        }
+
+            .info-row label {
+                font-weight: bold;
+                color: #333;
+            }
+
+            .info-row span {
+                color: #444;
+            }
+    </style>
+</head>
+
+<body>
+
+    <div class="card">
+        <div class="top-section">
+            <div class="avatar"></div>
+
+            <!-- Dynamic User ID -->
+            <div class="user-id">@Model.ID</div>
+
+            <!-- Dynamic Role -->
+            <span class="badge">@Model.Role</span>
+        </div>
+
+        <div class="info-group">
+
+            <div class="info-row">
+                <label>Full Name</label>
+                <span>@Model.Name</span>
+            </div>
+
+            <div class="info-row">
+                <label>Email</label>
+                <span>@Model.Email</span>
+            </div>
+
+            <div class="info-row">
+                <label>Password</label>
+                <span>@Model.Password</span>
+            </div>
+
+        </div>
+    </div>
+
+</body>
+</html>

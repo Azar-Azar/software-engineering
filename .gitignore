@@ -1,0 +1,14 @@
+# Build output
+bin/
+obj/
+
+# Visual Studio cache
+.vs/
+*.vsidx
+
+# User-specific files
+*.user
+*.suo
+
+# Logs
+*.log

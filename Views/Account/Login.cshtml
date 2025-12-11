@@ -1,0 +1,110 @@
+﻿@{
+    ViewData["Title"] = "Login";
+}
+
+<link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+
+<style>
+    body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: #ffffff;
+        color: #1E4815;
+        height: 100vh;
+    }
+
+    .container {
+        width: 420px;
+        display: flex;
+        flex-direction: column;
+        padding-top: 40px;
+    }
+
+        .container h1 {
+            text-align: center;
+            font-size: 36px;
+            color: #1E4815;
+        }
+
+    .subtitle {
+        text-align: left;
+        font-size: 14px;
+        margin-bottom: 40px;
+        color: black;
+        font-weight: 550;
+    }
+
+    .container .input-box {
+        position: relative;
+        width: 100%;
+        height: 50px;
+        margin: 30px 0;
+    }
+
+    .input-box input {
+        width: 80%;
+        height: 100%;
+        padding: 0 40px 0 15px;
+        font-size: 16px;
+        border: 2px solid #ded8d8;
+        border-radius: 25px;
+        outline: none;
+    }
+
+    .input-box i {
+        position: absolute;
+        right: 50px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 20px;
+    }
+
+    .container .btn {
+        width: 95%;
+        height: 50px;
+        border: none;
+        background: #1E4815;
+        outline: none;
+        color: #fff;
+        font-size: 18px;
+        border-radius: 25px;
+        cursor: pointer;
+        font-weight: bold;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    .error {
+        color: red;
+        text-align: center;
+        margin-bottom: 10px;
+        font-size: 14px;
+    }
+</style>
+
+
+<div class="container">
+    <form method="post" asp-action="Login">
+        <h1>Welcome Back!</h1>
+        <p class="subtitle">Sign in to access your account</p>
+
+        @if (ViewBag.Error != null)
+        {
+            <div class="error">@ViewBag.Error</div>
+        }
+
+        <div class="input-box">
+            <input type="text" name="email" placeholder="Enter your email" required />
+            <i class='bx bx-envelope'></i>
+        </div>
+
+        <div class="input-box">
+            <input type="password" name="password" placeholder="Enter your password" required />
+            <i class='bx bxs-lock-alt'></i>
+        </div>
+
+        <button type="submit" class="btn">Sign In</button>
+    </form>
+</div>
