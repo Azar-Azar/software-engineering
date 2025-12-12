@@ -20,7 +20,7 @@ namespace software_engineering.Models
         [EmailAddress]
         public string Email { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Please enter a Password")]
         [StringLength(50)]
         public string Password { get; set; }
 
