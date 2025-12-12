@@ -49,7 +49,7 @@ namespace software_engineering.Controllers
                 return RedirectToAction(nameof(Index));
             }
             TempData["ErrorMessage"] = "Please fill out all required fields before submitting the form.";
-            return view(user);
+            return View(user);
         }
 
         //Delete a user
