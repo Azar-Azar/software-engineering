@@ -42,9 +42,14 @@ namespace software_engineering.Controllers
         [AdminOnly]
         public async Task<IActionResult> AddUser(Users user)
         {
-            appDBcontext.Add(user);
-            await appDBcontext.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            if (ModelState.IsValid)//checks if all data if valid or fill out
+            {
+                appDBcontext.Add(user);
+                await appDBcontext.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
+            }
+            TempData["ErrorMessage"] = "Please fill out all required fields before submitting the form.";
+            return view(user);
         }
 
         //Delete a user
