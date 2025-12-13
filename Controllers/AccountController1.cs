@@ -59,13 +59,11 @@ namespace WebApplication6.Controllers
 
             return View(user);
         }
-       
-        // Logout
-        
-        public IActionResult Logout()
+         // Logout
+       public IActionResult Logout()
         {
             HttpContext.Session.Clear();
-            return RedirectToAction("Login");
-        }
+            return RedirectToAction("Profile");
+        }        
     }
 }
